@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-info span {
+            color: #666;
+        }
+        
+        .logout-btn {
+            padding: 10px 20px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #b71c1c;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-secondary {
+            background: #999;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #777;
+        }
+        
+        .btn-danger {
+            background: #d32f2f;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+        
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #45a049;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .actions button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Order Management System</h1>
+        <div class="user-info">
+            <span>Tenant: <strong id="tenantDisplay"></strong></span>
+            <span>User: <strong id="userDisplay"></strong></span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="message" id="message"></div>
+        
+        <div class="form-section">
+            <h2 id="formTitle">Create New Order</h2>
+            <form id="orderForm">
+                <input type="hidden" id="orderId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="orderNumber">Order Number:</label>
+                        <input type="text" id="orderNumber" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderDate">Order Date:</label>
+                        <input type="date" id="orderDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderStatus">Order Status:</label>
+                        <select id="orderStatus" required>
+                            <option value="">-- Select Status --</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="SHIPPED">Shipped</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customername">Customer Name:</label>
+                        <input type="text" id="customername" required>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-primary" id="submitBtn">Create Order</button>
+                    <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+        
+        <div>
+            <h2>Orders List</h2>
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Number</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                        <th>Customer Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                    <tr>
+                        <td colspan="6" class="no-data">Loading orders...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let editMode = false;
+        let currentOrderId = null;
+        
+        // Check if user is logged in
+        function checkAuth() {
+            const tenantId = sessionStorage.getItem('tenantId');
+            const username = sessionStorage.getItem('username');
+            
+            if (!tenantId || !username) {
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            document.getElementById('tenantDisplay').textContent = tenantId;
+            document.getElementById('userDisplay').textContent = username;
+            return true;
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+        
+        // Show message
+        function showMessage(text, type) {
+            const message = document.getElementById('message');
+            message.textContent = text;
+            message.className = 'message ' + type;
+            message.style.display = 'block';
+            
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Load orders
+        async function loadOrders() {
+            const tenantId = sessionStorage.getItem('tenantId');
+            
+            try {
+                const response = await fetch(`/rls/orders`);
+                const orders = await response.json();
+                
+                const tbody = document.getElementById('ordersTableBody');
+                
+                if (orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No orders found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = orders.map(order => `
+                    <tr>
+                        <td>${order.orderId}</td>
+                        <td>${order.orderNumber}</td>
+                        <td>${order.orderDate || 'N/A'}</td>
+                        <td>${order.orderStatus || 'N/A'}</td>
+                        <td>${order.customername || 'N/A'}</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-primary" onclick="editOrder(${order.orderId})">Edit</button>
+                                <button class="btn-danger" onclick="deleteOrder(${order.orderId})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                showMessage('Failed to load orders', 'error');
+            }
+        }
+        
+        // Create or Update order
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const tenantId = sessionStorage.getItem('tenantId');
+            const orderId = document.getElementById('orderId').value;
+            
+            const orderData = {
+                orderId: orderId || null,
+                orderNumber: document.getElementById('orderNumber').value,
+                tenantId: parseInt(tenantId),
+                orderDate: document.getElementById('orderDate').value,
+                orderStatus: document.getElementById('orderStatus').value,
+                customername: document.getElementById('customername').value
+            };
+            
+            try {
+                const method = editMode ? 'PUT' : 'POST';
+                const url = editMode ? `/rls/orders/${orderId}` : '/rls/orders';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.ok) {
+                    showMessage(editMode ? 'Order updated successfully' : 'Order created successfully', 'success');
+                    resetForm();
+                    loadOrders();
+                } else {
+                    showMessage('Failed to save order', 'error');
+                }
+            } catch (error) {
+                console.error('Error saving order:', error);
+                showMessage('Failed to save order', 'error');
+            }
+        });
+        
+        // Edit order
+        async function editOrder(id) {
+            const tenantId = sessionStorage.getItem('tenantId');
+            
+            try {
+                const response = await fetch(`/rls/orders`);
+                const orders = await response.json();
+                const order = orders.find(o => o.orderId === id);
+                
+                if (order) {
+                    editMode = true;
+                    currentOrderId = id;
+                    
+                    document.getElementById('formTitle').textContent = 'Edit Order';
+                    document.getElementById('submitBtn').textContent = 'Update Order';
+                    document.getElementById('submitBtn').className = 'btn-success';
+                    
+                    document.getElementById('orderId').value = order.orderId;
+                    document.getElementById('orderNumber').value = order.orderNumber;
+                    document.getElementById('orderDate').value = order.orderDate || '';
+                    document.getElementById('orderStatus').value = order.orderStatus || '';
+                    document.getElementById('customername').value = order.customername || '';
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } catch (error) {
+                console.error('Error loading order:', error);
+                showMessage('Failed to load order details', 'error');
+            }
+        }
+        
+        // Delete order
+        async function deleteOrder(id) {
+            if (!confirm('Are you sure you want to delete this order?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/rls/orders/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('Order deleted successfully', 'success');
+                    loadOrders();
+                } else {
+                    showMessage('Failed to delete order', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                showMessage('Failed to delete order', 'error');
+            }
+        }
+        
+        // Reset form
+        function resetForm() {
+            editMode = false;
+            currentOrderId = null;
+            
+            document.getElementById('formTitle').textContent = 'Create New Order';
+            document.getElementById('submitBtn').textContent = 'Create Order';
+            document.getElementById('submitBtn').className = 'btn-primary';
+            
+            document.getElementById('orderForm').reset();
+            document.getElementById('orderId').value = '';
+        }
+        
+        // Initialize
+        if (checkAuth()) {
+            loadOrders();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Order Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Order Management Login</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="tenantId">Tenant ID:</label>
+                <select id="tenantId" required>
+                    <option value="">-- Select Tenant --</option>
+                    <option value="1">Tenant 1</option>
+                    <option value="2">Tenant 2</option>
+                    <option value="3">Tenant 3</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" placeholder="Enter username" required>
+            </div>
+            
+            <button type="submit">Login</button>
+            <div class="error-message" id="errorMessage">Invalid credentials</div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const tenantId = document.getElementById('tenantId').value;
+            const username = document.getElementById('username').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Hide error message
+            errorMessage.style.display = 'none';
+            
+            if (tenantId && username) {
+                try {
+                    // Call the login service
+                    const response = await fetch('/rls/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            tenantId: parseInt(tenantId),
+                            username: username
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        // Store tenant information in sessionStorage for client-side use
+                        sessionStorage.setItem('tenantId', tenantId);
+                        sessionStorage.setItem('username', username);
+                        
+                        // Redirect to orders page
+                        window.location.href = 'orders.html';
+                    } else {
+                        errorMessage.textContent = result.message || 'Login failed';
+                        errorMessage.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    errorMessage.textContent = 'Connection error. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } else {
+                errorMessage.textContent = 'Please fill in all fields';
+                errorMessage.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

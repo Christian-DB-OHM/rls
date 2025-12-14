@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: postgres  # Change to 'mssql' to use PostgreSQL
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+logging:
+  level:
+    root: INFO
+    it.wiesner.db.rls: INFO
+    org.springframework.web: INFO
+    org.hibernate: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# MSSQL Configuration
+spring:
+  config:
+    activate:
+      on-profile: mssql
+  datasource:
+    driverClassName: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: jdbc:sqlserver://localhost:1433;encrypt=false;databaseName=rls
+    username: rls
+    password: rls
+
+app:
+  database:
+    type: mssql
+
+---
+# PostgreSQL Configuration
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: rls
+    password: rls
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
+
+app:
+  database:
+    type: postgres
