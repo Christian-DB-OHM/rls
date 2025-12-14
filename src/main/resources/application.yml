@@ -29,6 +29,10 @@ spring:
     url: jdbc:sqlserver://localhost:1433;encrypt=false;databaseName=rls
     username: rls
     password: rls
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
 
 app:
   database:
