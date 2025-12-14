@@ -43,9 +43,9 @@ CREATE SEQUENCE orders_seq
 GO
 
 -- Create security policy for Row Level Security (filter for SELECT, block for INSERT/UPDATE/DELETE)
-CREATE SECURITY POLICY TenantAccessPolicy
-	ADD FILTER PREDICATE TenantAccessPredicate(tenant_id) ON orders ,
-	ADD BLOCK  PREDICATE TenantAccessPredicate(tenant_id) ON orders; 
+CREATE SECURITY POLICY dbo.TenantAccessPolicy
+	ADD FILTER PREDICATE dbo.TenantAccessPredicate(tenant_id) ON dbo.orders ,
+	ADD BLOCK  PREDICATE dbo.TenantAccessPredicate(tenant_id) ON dbo.orders; 
 go
 
 -- Insert test data
